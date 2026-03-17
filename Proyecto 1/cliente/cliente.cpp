@@ -1,0 +1,97 @@
+#include <iostream>
+#include <cstring>
+#include <unistd.h>
+#include <arpa/inet.h>
+#include <sys/socket.h>
+#include "../shared/structs.h"
+
+#define PUERTO 8080
+#define IP_SERVIDOR "127.0.0.1"
+
+MensajeOrden pedirOrden() {
+    MensajeOrden orden;
+    memset(&orden, 0, sizeof(orden));
+
+    orden.tipoMensaje = 0;
+
+    std::cout << "\n=== Nueva Orden ===\n";
+
+    std::cout << "Numero de mesa: ";
+    std::cin >> orden.numeroMesa;
+    std::cin.ignore();
+
+    std::cout << "Nombre del producto: ";
+    std::cin.getline(orden.nombreProducto, sizeof(orden.nombreProducto));
+
+    std::cout << "Cantidad: ";
+    std::cin >> orden.cantidad;
+    std::cin.ignore();
+
+    return orden;
+}
+
+int conectarServidor() {
+    int socketCliente = socket(AF_INET, SOCK_STREAM, 0);
+    if (socketCliente < 0) {
+        std::cerr << "[Error] No se pudo crear el socket\n";
+        return -1;
+    }
+
+    sockaddr_in direccionServidor;
+    memset(&direccionServidor, 0, sizeof(direccionServidor));
+    direccionServidor.sin_family = AF_INET;
+    direccionServidor.sin_port = htons(PUERTO);
+
+    if (inet_pton(AF_INET, IP_SERVIDOR, &direccionServidor.sin_addr) <= 0) {
+        std::cerr << "[Error] IP invalida\n";
+        close(socketCliente);
+        return -1;
+    }
+
+    if (connect(socketCliente, (sockaddr*)&direccionServidor, sizeof(direccionServidor)) < 0) {
+        std::cerr << "[Error] No se pudo conectar al servidor\n";
+        close(socketCliente);
+        return -1;
+    }
+
+    return socketCliente;
+}
+
+void enviarOrden(int socketCliente, MensajeOrden& orden) {
+    send(socketCliente, &orden, sizeof(orden), 0);
+
+    std::cout << "\n[Cliente] Orden enviada:\n";
+    std::cout << "Mesa: " << orden.numeroMesa << "\n";
+    std::cout << "Producto: " << orden.nombreProducto << "\n";
+    std::cout << "Cantidad: " << orden.cantidad << "\n";
+}
+
+int main() {
+    while (true) {
+        std::cout << "\n=== SISTEMA MESERO ===\n";
+        std::cout << "1. Registrar orden\n";
+        std::cout << "2. Salir\n";
+        std::cout << "Opcion: ";
+
+        int opcion;
+        std::cin >> opcion;
+        std::cin.ignore();
+
+        if (opcion == 1) {
+            MensajeOrden orden = pedirOrden();
+
+            int socketCliente = conectarServidor();
+            if (socketCliente >= 0) {
+                enviarOrden(socketCliente, orden);
+                close(socketCliente);
+            }
+        } else if (opcion == 2) {
+            std::cout << "[Cliente] Cerrando...\n";
+            break;
+        } else {
+            std::cout << "[Cliente] Opcion invalida\n";
+        }
+    }
+
+    return 0;
+}

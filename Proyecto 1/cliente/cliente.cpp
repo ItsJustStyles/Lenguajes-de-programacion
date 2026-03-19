@@ -5,6 +5,7 @@
 #include <sys/socket.h>
 #include "../shared/structs.h"
 
+#define MAX_BUFFER 1024
 #define PUERTO 8080
 #define IP_SERVIDOR "127.0.0.1"
 
@@ -27,6 +28,9 @@ MensajeOrden pedirOrden() {
     std::cin >> orden.cantidad;
     std::cin.ignore();
 
+    std::cout << "Especificaciones (Enter para omitir): ";
+    std::cin.getline(orden.especificaciones, sizeof(orden.especificaciones));
+
     return orden;
 }
 
@@ -41,12 +45,7 @@ int conectarServidor() {
     memset(&direccionServidor, 0, sizeof(direccionServidor));
     direccionServidor.sin_family = AF_INET;
     direccionServidor.sin_port = htons(PUERTO);
-
-    if (inet_pton(AF_INET, IP_SERVIDOR, &direccionServidor.sin_addr) <= 0) {
-        std::cerr << "[Error] IP invalida\n";
-        close(socketCliente);
-        return -1;
-    }
+    inet_pton(AF_INET, IP_SERVIDOR, &direccionServidor.sin_addr);
 
     if (connect(socketCliente, (sockaddr*)&direccionServidor, sizeof(direccionServidor)) < 0) {
         std::cerr << "[Error] No se pudo conectar al servidor\n";
@@ -64,6 +63,14 @@ void enviarOrden(int socketCliente, MensajeOrden& orden) {
     std::cout << "Mesa: " << orden.numeroMesa << "\n";
     std::cout << "Producto: " << orden.nombreProducto << "\n";
     std::cout << "Cantidad: " << orden.cantidad << "\n";
+    std::cout << "  Especificaciones: " << orden.especificaciones << "\n";
+
+    char buffer[MAX_BUFFER] = {0};
+    int bytesRecibidos = recv(socketCliente, buffer, MAX_BUFFER, 0);
+
+    if (bytesRecibidos > 0) {
+        std::cout << "[Cliente] Servidor: " << buffer << "\n";
+    }
 }
 
 int main() {
@@ -77,19 +84,22 @@ int main() {
         std::cin >> opcion;
         std::cin.ignore();
 
-        if (opcion == 1) {
-            MensajeOrden orden = pedirOrden();
-
-            int socketCliente = conectarServidor();
-            if (socketCliente >= 0) {
-                enviarOrden(socketCliente, orden);
-                close(socketCliente);
+        switch (opcion) {
+            case 1: {
+                MensajeOrden orden = pedirOrden();
+    
+                int socketCliente = conectarServidor();
+                if (socketCliente >= 0) {
+                    enviarOrden(socketCliente, orden);
+                    close(socketCliente);
+                }
+                break;
             }
-        } else if (opcion == 2) {
-            std::cout << "[Cliente] Cerrando...\n";
-            break;
-        } else {
-            std::cout << "[Cliente] Opcion invalida\n";
+            case 2:
+                std::cout << "[Cliente] Cerrando...\n";
+                return 0;
+            default:
+                std::cout << "[Cliente] Opcion invalida.\n";
         }
     }
 

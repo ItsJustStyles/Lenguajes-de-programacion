@@ -7,7 +7,7 @@
 
 #define MAX_BUFFER 1024
 #define PUERTO 8080
-#define IP_SERVIDOR "127.0.0.1"
+#define IP_SERVIDOR "localhost"
 
 MensajeOrden pedirOrden() {
     MensajeOrden orden;
@@ -73,11 +73,41 @@ void enviarOrden(int socketCliente, MensajeOrden& orden) {
     }
 }
 
+void modificarOrden() {
+    int id;
+    std::cout << "\n=== Modificar Orden ===\n";
+    std::cout << "ID de la orden a modificar: ";
+    std::cin >> id;
+    std::cin.ignore();
+
+    MensajeOrden orden;
+    memset(&orden, 0, sizeof(orden));
+    orden.tipoMensaje = 1;
+    orden.idOrden = id;
+
+    std::cout << "Nuevo producto (Enter para mantener): ";
+    std::cin.getline(orden.nombreProducto, sizeof(orden.nombreProducto));
+
+    std::cout << "Nueva cantidad (0 para mantener): ";
+    std::cin >> orden.cantidad;
+    std::cin.ignore();
+
+    std::cout << "Nuevas especificaciones (Enter para mantener): ";
+    std::cin.getline(orden.especificaciones, sizeof(orden.especificaciones));
+
+    int socketCliente = conectarServidor();
+    if (socketCliente < 0) return;
+
+    enviarOrden(socketCliente, orden);
+    close(socketCliente);
+}
+
 int main() {
     while (true) {
         std::cout << "\n=== SISTEMA MESERO ===\n";
         std::cout << "1. Registrar orden\n";
-        std::cout << "2. Salir\n";
+        std::cout << "2. Modificar orden\n";
+        std::cout << "3. Salir\n";
         std::cout << "Opcion: ";
 
         int opcion;
@@ -87,7 +117,6 @@ int main() {
         switch (opcion) {
             case 1: {
                 MensajeOrden orden = pedirOrden();
-    
                 int socketCliente = conectarServidor();
                 if (socketCliente >= 0) {
                     enviarOrden(socketCliente, orden);
@@ -96,6 +125,9 @@ int main() {
                 break;
             }
             case 2:
+                modificarOrden();
+                break;
+            case 3:
                 std::cout << "[Cliente] Cerrando...\n";
                 return 0;
             default:

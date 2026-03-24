@@ -3,4 +3,5 @@
 
 extern Restaurante restaurante;
 
+bool mesaValida(int numeroMesa);
 void configurarMesas();

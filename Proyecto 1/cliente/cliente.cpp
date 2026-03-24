@@ -34,28 +34,6 @@ MensajeOrden pedirOrden() {
     return orden;
 }
 
-int conectarServidor() {
-    int socketCliente = socket(AF_INET, SOCK_STREAM, 0);
-    if (socketCliente < 0) {
-        std::cerr << "[Error] No se pudo crear el socket\n";
-        return -1;
-    }
-
-    sockaddr_in direccionServidor;
-    memset(&direccionServidor, 0, sizeof(direccionServidor));
-    direccionServidor.sin_family = AF_INET;
-    direccionServidor.sin_port = htons(PUERTO);
-    inet_pton(AF_INET, IP_SERVIDOR, &direccionServidor.sin_addr);
-
-    if (connect(socketCliente, (sockaddr*)&direccionServidor, sizeof(direccionServidor)) < 0) {
-        std::cerr << "[Error] No se pudo conectar al servidor\n";
-        close(socketCliente);
-        return -1;
-    }
-
-    return socketCliente;
-}
-
 void enviarOrden(int socketCliente, MensajeOrden& orden) {
     send(socketCliente, &orden, sizeof(orden), 0);
 
@@ -95,19 +73,45 @@ void modificarOrden() {
     std::cout << "Nuevas especificaciones (Enter para mantener): ";
     std::cin.getline(orden.especificaciones, sizeof(orden.especificaciones));
 
-    int socketCliente = conectarServidor();
-    if (socketCliente < 0) return;
+    int socketCliente = socket(AF_INET, SOCK_STREAM, 0);
+    if (socketCliente < 0) {
+        std::cerr << "[Error] No se pudo crear el socket.\n";
+        return;
+    }
 
-    enviarOrden(socketCliente, orden);
+    sockaddr_in direccionServidor;
+    memset(&direccionServidor, 0, sizeof(direccionServidor));
+    direccionServidor.sin_family = AF_INET;
+    direccionServidor.sin_port   = htons(PUERTO);
+    inet_pton(AF_INET, IP_SERVIDOR, &direccionServidor.sin_addr);
+
+    if (connect(socketCliente, (sockaddr*)&direccionServidor, sizeof(direccionServidor)) < 0) {
+        std::cerr << "[Error] No se pudo conectar al servidor.\n";
+        close(socketCliente);
+        return;
+    }
+
+    send(socketCliente, &orden, sizeof(orden), 0);
+
+    char buffer[MAX_BUFFER] = {0};
+    int bytes = recv(socketCliente, buffer, MAX_BUFFER, 0);
+    if (bytes > 0)
+        std::cout << "[Cliente] Servidor: " << buffer << "\n";
+
     close(socketCliente);
+
+    
 }
 
 int main() {
     while (true) {
-        std::cout << "\n=== SISTEMA MESERO ===\n";
-        std::cout << "1. Registrar orden\n";
-        std::cout << "2. Modificar orden\n";
-        std::cout << "3. Salir\n";
+        std::cout << "\n╔══════════════════════════╗\n";
+        std::cout << "║     SISTEMA MESERO       ║\n";
+        std::cout << "╠══════════════════════════╣\n";
+        std::cout << "║  1. Registrar orden      ║\n";
+        std::cout << "║  2. Modificar orden      ║\n";
+        std::cout << "║  3. Salir                ║\n";
+        std::cout << "╚══════════════════════════╝\n";
         std::cout << "Opcion: ";
 
         int opcion;
@@ -116,17 +120,30 @@ int main() {
 
         switch (opcion) {
             case 1: {
-                MensajeOrden orden = pedirOrden();
-                int socketCliente = conectarServidor();
-                if (socketCliente >= 0) {
-                    enviarOrden(socketCliente, orden);
-                    close(socketCliente);
+                int socketCliente = socket(AF_INET, SOCK_STREAM, 0);
+                if (socketCliente < 0) {
+                    std::cerr << "[Error] No se pudo crear el socket.\n";
+                    break;
                 }
+
+                sockaddr_in direccionServidor;
+                memset(&direccionServidor, 0, sizeof(direccionServidor));
+                direccionServidor.sin_family = AF_INET;
+                direccionServidor.sin_port   = htons(PUERTO);
+                inet_pton(AF_INET, IP_SERVIDOR, &direccionServidor.sin_addr);
+
+                if (connect(socketCliente, (sockaddr*)&direccionServidor, sizeof(direccionServidor)) < 0) {
+                    std::cerr << "[Error] No se pudo conectar al servidor.\n";
+                    close(socketCliente);
+                    break;
+                }
+
+                MensajeOrden orden = pedirOrden();
+                enviarOrden(socketCliente, orden);
+                close(socketCliente);
                 break;
             }
-            case 2:
-                modificarOrden();
-                break;
+            case 2: modificarOrden(); break;
             case 3:
                 std::cout << "[Cliente] Cerrando...\n";
                 return 0;

@@ -1,12 +1,15 @@
 CXX   = g++
 FLAGS = -Wall -std=c++17
+LIBS  = -lpthread
 
-all: servidor cliente
+.PHONY: all clean
 
-servidor: servidor/servidor.cpp servidor/ordenes.cpp servidor/productos.cpp servidor/mesas.cpp shared/structs.h
-	$(CXX) $(FLAGS) servidor/servidor.cpp servidor/ordenes.cpp servidor/productos.cpp servidor/mesas.cpp -o servidor/servidor -lpthread
+all: servidor/servidor cliente/cliente
 
-cliente: cliente/cliente.cpp shared/structs.h
+servidor/servidor: servidor/servidor.cpp servidor/ordenes.cpp servidor/productos.cpp servidor/mesas.cpp shared/structs.h
+	$(CXX) $(FLAGS) servidor/servidor.cpp servidor/ordenes.cpp servidor/productos.cpp servidor/mesas.cpp -o servidor/servidor $(LIBS)
+
+cliente/cliente: cliente/cliente.cpp shared/structs.h
 	$(CXX) $(FLAGS) cliente/cliente.cpp -o cliente/cliente
 
 clean:

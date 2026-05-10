@@ -1,0 +1,1 @@
+[Registro {monto = 50000.0, categoria = "Salario", fecha = 2026-05-09 23:58:51.0515567 UTC, descripcion = "Pago de quincena", etiquetas = ["fijo"], tipo = Ingreso},Registro {monto = 15000.0, categoria = "Comida", fecha = 2026-05-09 23:58:51.0515567 UTC, descripcion = "Almuerzo en el TEC", etiquetas = ["variable"], tipo = Gasto}]

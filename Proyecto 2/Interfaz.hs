@@ -224,7 +224,7 @@ menuAgregarRegistro registros = do
     tipoRegistro <- leerTipoRegistro
     montoRegistro <- leerDouble "Monto: "
     categoriaRegistro <- prompt "Categoria: "
-    fechaRegistro <- prompt "Fecha (YYYY-MM-DD): "
+    fechaRegistro <- leerFechaValidada "Fecha (YYYY-MM-DD): "
     descripcionRegistro <- prompt "Descripcion: "
     etiquetasRegistro <- leerEtiquetas
 
@@ -258,24 +258,31 @@ menuVerRegistros registros = do
         ]
     opcion <- leerOpcion
     case opcion of
-        1 -> mostrarListaRegistros "TODOS LOS REGISTROS" registros >> pausar
+        1 -> do
+            mostrarListaRegistros "TODOS LOS REGISTROS" registros
+            pausar
+            menuVerRegistros registros
         2 -> do
             t <- leerTipoRegistro
             mostrarListaRegistros ("REGISTROS DE TIPO " ++ showTipo t) (filtrarPorTipo t registros)
             pausar
+            menuVerRegistros registros
         3 -> do
             cat <- prompt "Categoria a buscar: "
             mostrarListaRegistros ("REGISTROS DE CATEGORIA " ++ cat) (filtrarPorCategoria cat registros)
             pausar
+            menuVerRegistros registros
         4 -> do
             etq <- prompt "Etiqueta a buscar: "
             mostrarListaRegistros ("REGISTROS CON ETIQUETA " ++ etq) (filtrarPorEtiqueta etq registros)
             pausar
+            menuVerRegistros registros
         5 -> do
             inicio <- leerFechaValidada "Fecha inicial (YYYY-MM-DD): "
             fin <- leerFechaValidada "Fecha final (YYYY-MM-DD): "
             mostrarListaRegistros "REGISTROS DEL PERIODO" (filtrarPorRangoFecha inicio fin registros)
             pausar
+            menuVerRegistros registros
         6 -> return ()
         _ -> do
             putStrLn "Opcion invalida"

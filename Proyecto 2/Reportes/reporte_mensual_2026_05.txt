@@ -1,0 +1,6 @@
+=== Resumen 5/2026 ===
+Ingresos:    50000.0
+Gastos:      0.0
+Ahorros:     8000.0
+Inversiones: 0.0
+Balance:     50000.0

@@ -63,21 +63,20 @@ validarCoherenciaTipo t cat =
 validarRegistro
     :: Double
     -> Categoria
-    -> String       -- fecha como texto "YYYY-MM-DD"
+    -> Fecha
     -> Descripcion
     -> [Etiquetas]
     -> TipoRegistro
     -> Either String RegistroFinanciero
-validarRegistro m cat fechaStr desc etiq t = do
+validarRegistro m cat f desc etiq t = do
     montoValido <- validarMonto m
-    fechaValida <- validarFecha fechaStr
     catValida   <- validarCategoria cat
     descValida  <- validarDescripcion desc
     _           <- validarCoherenciaTipo t cat
     Right $ Registro
         { monto       = montoValido
         , categoria   = catValida
-        , fecha       = fechaValida
+        , fecha       = f
         , descripcion = descValida
         , etiquetas   = etiq
         , tipo        = t

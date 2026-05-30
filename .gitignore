@@ -1,0 +1,8 @@
+# Zone.Identifier files (NTFS alternate data streams from Windows downloads)
+*:Zone.Identifier
+
+# SWI-Prolog
+*.qlf
+*.pl.bak
+*.swipl-history
+.swipl_history

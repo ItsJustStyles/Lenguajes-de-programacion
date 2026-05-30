@@ -13,17 +13,16 @@
 % delegan a modulos especificos que se integraran en fases posteriores.
 % ============================================================================
 
-% --- Carga de modulos del proyecto -----------------------------------------
-% NOTA: estos modulos se desarrollan en las fases siguientes. Mientras no
-% existan, las respuestas se manejan con un predicado provisional (ver
-% responder/1 mas abajo).
-%
-% :- consult('knowledge_base.pl').
-% :- consult('inference.pl').
-% :- consult('query_processor.pl').
-% :- consult('learning.pl').
-
 :- set_prolog_flag(encoding, utf8).
+
+% --- Carga de modulos del proyecto -----------------------------------------
+% Fase 2: base de conocimiento ya disponible. El resto se integra en sus
+% fases. La carga es relativa al directorio de este archivo, por lo que
+% funciona ejecutando "swipl src/main.pl" desde la raiz del proyecto.
+:- consult('knowledge_base.pl').
+% :- consult('inference.pl').       % Fase 3
+% :- consult('query_processor.pl'). % Fase 4
+% :- consult('learning.pl').        % Fase 5
 
 % ============================================================================
 % PUNTO DE ENTRADA

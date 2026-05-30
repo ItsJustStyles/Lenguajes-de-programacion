@@ -55,7 +55,7 @@ Proyecto 3/
 ## Estado de desarrollo
 
 - [x] **Fase 1** — Estructura base y bucle conversacional.
-- [ ] **Fase 2** — Base de conocimiento inicial (50+ hechos/reglas).
+- [x] **Fase 2** — Base de conocimiento inicial (79 hechos + 6 reglas de inferencia).
 - [ ] **Fase 3** — Sistema de inferencias lógicas.
 - [ ] **Fase 4** — Manejo de variaciones y sinónimos.
 - [ ] **Fase 5** — Aprendizaje dinámico.

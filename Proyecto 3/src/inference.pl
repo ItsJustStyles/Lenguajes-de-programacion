@@ -19,9 +19,7 @@ preparar_pregunta(Pregunta, consulta_general, Terminos) :-
 
 
 
-% ============================================================================
 % RESPUESTAS POR INTENCION
-% ============================================================================
 
 obtener_por_intencion(saludo, _, 'Hola. Puedes preguntarme por conceptos, definiciones, relaciones, sinonimos o propiedades.').
 

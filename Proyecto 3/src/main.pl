@@ -22,8 +22,8 @@
 % fases. La carga es relativa al directorio de este archivo, por lo que
 % funciona ejecutando "swipl src/main.pl" desde la raiz del proyecto.
 :- consult('knowledge_base.pl').
-% :- consult('inference.pl').       % Fase 3
-% :- consult('query_processor.pl'). % Fase 4
+:- consult('inference.pl').       % Fase 3
+:- consult('query_processor.pl'). % Fase 4
 % :- consult('learning.pl').        % Fase 5
 
 % ============================================================================

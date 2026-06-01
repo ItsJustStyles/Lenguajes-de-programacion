@@ -14,6 +14,8 @@
 % ============================================================================
 
 :- set_prolog_flag(encoding, utf8).
+:- use_module(library(readutil)).
+:- use_module(library(apply)).
 
 % --- Carga de modulos del proyecto -----------------------------------------
 % Fase 2: base de conocimiento ya disponible. El resto se integra en sus
@@ -87,16 +89,16 @@ palabra_salida(exit).
 palabra_salida(quit).
 
 % ============================================================================
-% RESPUESTA (PROVISIONAL - se reemplaza en fases siguientes)
+% SISTEMA DE RESPUESTAS
 % ============================================================================
 
 % responder(+Palabras)
-% Placeholder de la Fase 1: confirma que entendio la entrada.
-% En las fases siguientes este predicado consultara la base de conocimiento,
-% aplicara inferencias y manejara el aprendizaje dinamico.
+% Delega la interpretacion de la pregunta y la construccion de la respuesta
+% al sistema de inferencias. Ese sistema usa query_processor.pl para manejar
+% variaciones como "Que es Prolog", "Explique Prolog" o "Defina Prolog".
 responder(Palabras) :-
-    atomic_list_concat(Palabras, ' ', Frase),
-    format("Bot: (provisional) recibi tu mensaje: \"~w\"~n", [Frase]).
+    obtener_respuesta(Palabras, Respuesta),
+    format('Bot: ~w~n', [Respuesta]).
 
 % ============================================================================
 % MENSAJES DE INTERFAZ

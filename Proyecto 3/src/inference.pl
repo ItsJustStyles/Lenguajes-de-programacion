@@ -175,8 +175,8 @@ inferir_relacion(A, B) :-
     (   mismo_significado(CA, CB)
     ;   es_un_inferido(CA, CB)
     ;   es_un_inferido(CB, CA)
-    ;   es_partes_de_inferido(CA, CB)  
-    ;   es_partes_de_inferido(CB, CA)  
+    ;   es_parte_de_inferido(CA, CB)
+    ;   es_parte_de_inferido(CB, CA)
     ;   se_relaciona(CA, CB)
     ).
 

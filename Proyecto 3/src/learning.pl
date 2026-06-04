@@ -59,8 +59,10 @@ corregir_hecho(Tipo, Entidad, ValorAntiguo, ValorNuevo) :-
 
 guardar_hecho_en_archivo(Hecho) :-
     ruta_persistencia(Ruta),
+    Hecho =.. [Tipo, Entidad, Valor],
     open(Ruta, append, Stream),
     format(Stream, ':- assertz(~q).~n', [Hecho]),
+    format(Stream, ':- assertz(hecho_aprendido(~q,~q,~q)).~n', [Tipo, Entidad, Valor]),
     close(Stream).
 
 reescribir_archivo_persistencia :-
@@ -73,7 +75,8 @@ reescribir_archivo_persistencia :-
 
 escribir_en_stream(Stream, Tipo/Entidad/Valor) :-
     Hecho =.. [Tipo, Entidad, Valor],
-    format(Stream, ':- assertz(~q).~n', [Hecho]).
+    format(Stream, ':- assertz(~q).~n', [Hecho]),
+    format(Stream, ':- assertz(hecho_aprendido(~q,~q,~q)).~n', [Tipo, Entidad, Valor]).
 
 interpretar_ensenanza(Palabras, Respuesta) :-
     es_comando_aprendizaje(Palabras), !,

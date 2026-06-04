@@ -23,7 +23,10 @@ bucle_conversacion :-
 
 leer_entrada(Palabras) :-
     read_line_to_string(user_input, Linea),
-    normalizar_entrada(Linea, Palabras).
+    ( Linea == end_of_file
+    -> Palabras = [salir]
+    ;  normalizar_entrada(Linea, Palabras)
+    ).
 
 normalizar_entrada(Linea, Palabras) :-
     string_lower(Linea, LineaMin),

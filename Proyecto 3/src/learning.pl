@@ -17,7 +17,7 @@ inicializar_aprendizaje :-
              Error,
              format('Advertencia al cargar hechos previos (~w): ~w~n',
                     [Ruta, Error]))
-    ;  true   % primera ejecucion, archivo aun no existe
+    ;  true   
     ).
 
 :- initialization(inicializar_aprendizaje, now).
@@ -38,24 +38,24 @@ validar_nuevo_conocimiento(Tipo/Entidad/Valor) :-
 ensenar_hecho(Tipo, Entidad, Valor) :-
     validar_nuevo_conocimiento(Tipo/Entidad/Valor),
     Hecho =.. [Tipo, Entidad, Valor],
-    \+ call(Hecho),                                  % no duplicar
-    assertz(Hecho),                                  % <-- assertz/1
+    \+ call(Hecho),                                
+    assertz(Hecho),                                  
     assertz(hecho_aprendido(Tipo, Entidad, Valor)),
     guardar_hecho_en_archivo(Hecho).
 
 olvidar_hecho(Tipo, Entidad, Valor) :-
     Hecho =.. [Tipo, Entidad, Valor],
-    retract(Hecho),                                  % <-- retract/1
+    retract(Hecho),                                 
     ( retract(hecho_aprendido(Tipo, Entidad, Valor)) -> true ; true ),
     reescribir_archivo_persistencia.
 
 corregir_hecho(Tipo, Entidad, ValorAntiguo, ValorNuevo) :-
     HechoViejo =.. [Tipo, Entidad, ValorAntiguo],
-    ( retract(HechoViejo)                            % <-- retract/1
+    ( retract(HechoViejo)                            
     -> ( retract(hecho_aprendido(Tipo, Entidad, ValorAntiguo)) -> true ; true )
     ;  true
     ),
-    ensenar_hecho(Tipo, Entidad, ValorNuevo).        % usa assertz/1
+    ensenar_hecho(Tipo, Entidad, ValorNuevo).        
 
 guardar_hecho_en_archivo(Hecho) :-
     ruta_persistencia(Ruta),
@@ -165,12 +165,12 @@ parsear_hecho(P, es_un, Entidad, Valor) :-
     atomic_list_concat(XP, '_', Entidad),
     atomic_list_concat(YP, '_', Valor).
 
-% "X es Y" -> concepto(X, descripcion)  -- caso mas general, siempre al final
+% "X es Y" -> concepto(X, descripcion) 
 parsear_hecho(P, concepto, Entidad, Valor) :-
     append(XP, [es | YP], P),
     XP \= [], YP \= [], !,
     atomic_list_concat(XP, '_', Entidad),
-    atomic_list_concat(YP, ' ', Valor).   % descripcion con espacios
+    atomic_list_concat(YP, ' ', Valor).  
 
 % Llama a ensenar_hecho/3 y construye la respuesta adecuada.
 intentar_ensenar(Tipo, Entidad, Valor, Respuesta) :-

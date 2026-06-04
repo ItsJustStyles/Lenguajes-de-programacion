@@ -157,7 +157,9 @@ responder_resumen(Termino, Respuesta) :-
 
 
 
+% ===========================================================================
 % RELACIONES E INFERENCIAS PUBLICAS
+% ===========================================================================
 
 inferir_propiedad(Entidad, Propiedad) :-
     canonico(Entidad, Canonico),
@@ -173,8 +175,8 @@ inferir_relacion(A, B) :-
     (   mismo_significado(CA, CB)
     ;   es_un_inferido(CA, CB)
     ;   es_un_inferido(CB, CA)
-    ;   parte_de(CA, CB)
-    ;   parte_de(CB, CA)
+    ;   es_partes_de_inferido(CA, CB)  
+    ;   es_partes_de_inferido(CB, CA)  
     ;   se_relaciona(CA, CB)
     ).
 
@@ -194,22 +196,27 @@ relacion_directa_o_inferida(A, B, Respuesta) :-
     texto_termino(A, TA),
     format(atom(Respuesta), 'Por inferencia taxonomica, ~w es un tipo de ~w.', [TB, TA]).
 relacion_directa_o_inferida(A, B, Respuesta) :-
-    parte_de(A, B),
+    es_parte_de_inferido(A, B),       
     texto_termino(A, TA),
     texto_termino(B, TB),
-    format(atom(Respuesta), '~w es parte de ~w.', [TA, TB]).
+    format(atom(Respuesta), 'Por inferencia de composicion, ~w es parte de ~w.', [TA, TB]).
 relacion_directa_o_inferida(A, B, Respuesta) :-
-    parte_de(B, A),
+    es_parte_de_inferido(B, A),        
     texto_termino(B, TB),
     texto_termino(A, TA),
-    format(atom(Respuesta), '~w es parte de ~w.', [TB, TA]).
+    format(atom(Respuesta), 'Por inferencia de composicion, ~w es parte de ~w.', [TB, TA]).
 relacion_directa_o_inferida(A, B, Respuesta) :-
     se_relaciona(A, B),
     texto_termino(A, TA),
     texto_termino(B, TB),
     format(atom(Respuesta), '~w se relaciona logicamente con ~w.', [TA, TB]).
 
+es_parte_de_inferido(A, B) :- 
+    parte_de(A, B).
 
+es_parte_de_inferido(A, B) :- 
+    parte_de(A, Z), 
+    es_parte_de_inferido(Z, B).
 
 
 

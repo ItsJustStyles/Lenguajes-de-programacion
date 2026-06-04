@@ -1,5 +1,4 @@
 % Hechos aprendidos - generado automaticamente
-:- assertz(es_un(mercurio,planeta)).
-:- assertz(parte_de(la_ram,la_computadora)).
-:- assertz(concepto(el_sol,'una estrella')).
-:- assertz(parte_de(ram,computadora)).
+:- assertz(parte_de(ram,tarjeta)).
+:- assertz(parte_de(tarjeta,computadora)).
+:- assertz(es_un(lenguaje_de_programacion,software)).

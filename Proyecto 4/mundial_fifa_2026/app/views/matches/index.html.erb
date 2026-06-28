@@ -1,0 +1,108 @@
+<%# ─────────────────────────────────────────────────────────────────────────
+    matches/index.html.erb
+    Lista de todos los partidos, con filtro por fase en la URL (?phase=…).
+    Variable: @matches (incluye home_team, away_team, group)
+──────────────────────────────────────────────────────────────────────────── %>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1>Partidos</h1>
+</div>
+
+<%# ── Filtros por fase ──────────────────────────────────────────────── %>
+<div class="d-flex flex-wrap gap-2 mb-4">
+  <%= link_to "Todos",
+        matches_path,
+        class: "btn btn-sm #{params[:phase].blank? ? 'btn-dark' : 'btn-outline-dark'}" %>
+
+  <% Match.phases.each_key do |phase| %>
+    <%= link_to Match::PHASE_LABELS[phase] || phase.humanize,
+          matches_path(phase: phase),
+          class: "btn btn-sm #{params[:phase] == phase ? 'btn-dark' : 'btn-outline-secondary'}" %>
+  <% end %>
+</div>
+
+<% if @matches.empty? %>
+  <div class="alert alert-info">
+    No hay partidos que mostrar para el filtro seleccionado.
+  </div>
+
+<% else %>
+  <%# Agrupar por fase para mostrar un encabezado por ronda %>
+  <% @matches.group_by(&:phase).each do |phase, matches| %>
+    <h4 class="mt-4 mb-3 border-bottom pb-2">
+      <%= Match::PHASE_LABELS[phase] || phase.humanize %>
+      <span class="small text-muted fw-normal ms-2">
+        (<%= matches.count(&:completed?) %> / <%= matches.size %> finalizados)
+      </span>
+    </h4>
+
+    <div class="table-responsive mb-3">
+      <table class="table table-hover align-middle">
+        <thead class="table-dark">
+          <tr>
+            <th style="width:3rem">#</th>
+            <th>Local</th>
+            <th class="text-center" style="width:120px">Resultado</th>
+            <th>Visitante</th>
+            <th class="text-center">Estado</th>
+            <th class="text-center">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% matches.each do |match| %>
+            <tr>
+              <td class="text-muted small"><%= match.match_number %></td>
+
+              <%# Local (negrita si ganó) %>
+              <td class="fw-semibold
+                         <%= 'text-success' if match.completed? && match.winner == match.home_team %>">
+                <%= match.home_team&.name || "Por definir" %>
+              </td>
+
+              <%# Marcador %>
+              <td class="text-center fw-bold">
+                <% if match.completed? %>
+                  <%= match.home_goals %> &ndash; <%= match.away_goals %>
+                  <% if match.home_penalties %>
+                    <br><small class="text-muted fw-normal">
+                      (<%= match.home_penalties %>–<%= match.away_penalties %> pen.)
+                    </small>
+                  <% end %>
+                <% else %>
+                  <span class="text-muted">vs</span>
+                <% end %>
+              </td>
+
+              <%# Visitante (negrita si ganó) %>
+              <td class="fw-semibold
+                         <%= 'text-success' if match.completed? && match.winner == match.away_team %>">
+                <%= match.away_team&.name || "Por definir" %>
+              </td>
+
+              <%# Estado %>
+              <td class="text-center">
+                <% if match.completed? %>
+                  <span class="badge bg-success">Finalizado</span>
+                <% else %>
+                  <span class="badge bg-warning text-dark">Pendiente</span>
+                <% end %>
+              </td>
+
+              <%# Acciones %>
+              <td class="text-center">
+                <div class="d-flex justify-content-center gap-1">
+                  <%= link_to "Ver", match_path(match), class: "btn btn-sm btn-outline-secondary" %>
+                  <% unless match.completed? %>
+                    <% if match.home_team && match.away_team %>
+                      <%= link_to "Registrar", edit_match_path(match), class: "btn btn-sm btn-primary" %>
+                    <% end %>
+                  <% end %>
+                </div>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% end %>
+<% end %>

@@ -1,15 +1,64 @@
 /*
- * This is a manifest file that'll be compiled into application.css, which will include all the files
- * listed below.
- *
- * Any CSS (and SCSS, if configured) file within this directory, lib/assets/stylesheets, or any plugin's
- * vendor/assets/stylesheets directory can be referenced here using a relative path.
- *
- * You're free to add application-wide styles to this file and they'll appear at the bottom of the
- * compiled file so the styles you add here take precedence over styles defined in any other CSS
- * files in this directory. Styles in this file should be added after the last require_* statement.
- * It is generally better to create a new file per style scope.
+ * application.css
+ * Estilos personalizados para el sistema Mundial FIFA 2026.
+ * Bootstrap 5 se carga desde el layout; aquí sólo van ajustes propios.
  *
  *= require_tree .
  *= require_self
  */
+
+/* ── Tabla de posiciones ─────────────────────────────────────────── */
+.standings-table thead th {
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* Fila clasificada */
+.row-qualified {
+  background-color: #d1e7dd !important;
+}
+
+/* Fila eliminada */
+.row-eliminated {
+  background-color: #f8d7da !important;
+  opacity: 0.75;
+}
+
+/* ── Tarjeta de partido (bracket) ────────────────────────────────── */
+.match-card {
+  transition: box-shadow 0.15s ease;
+}
+.match-card:hover {
+  box-shadow: 0 0.5rem 1rem rgba(0,0,0,.15) !important;
+}
+
+/* ── Dashboard: mini resultado dentro de la tarjeta de grupo ─────── */
+.group-matches .match-row {
+  font-size: 0.82rem;
+}
+
+/* ── Fase eliminatoria: cabecera de ronda ────────────────────────── */
+.round-header {
+  background: linear-gradient(90deg, #212529, #495057);
+  color: #fff;
+  padding: 0.35rem 0.8rem;
+  border-radius: 0.3rem;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+}
+
+/* ── Podio de campeones ──────────────────────────────────────────── */
+.podium-gold {
+  border: 2px solid #ffc107;
+  transform: scale(1.08);
+  box-shadow: 0 .5rem 1.5rem rgba(255,193,7,.4) !important;
+}
+
+/* ── Formulario de resultado ─────────────────────────────────────── */
+.result-input {
+  font-size: 2rem;
+  font-weight: 700;
+  text-align: center;
+}

@@ -1,0 +1,96 @@
+<%# ─────────────────────────────────────────────────────────────────────────
+    matches/show.html.erb
+    Detalle de un partido: equipos, resultado y metadatos.
+    Variable: @match
+──────────────────────────────────────────────────────────────────────────── %>
+
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
+  <h1>Partido</h1>
+  <div class="d-flex gap-2">
+    <% unless @match.completed? %>
+      <% if @match.home_team && @match.away_team %>
+        <%= link_to "Registrar resultado", edit_match_path(@match), class: "btn btn-primary" %>
+      <% end %>
+    <% end %>
+    <%= link_to "← Partidos", matches_path, class: "btn btn-outline-secondary" %>
+  </div>
+</div>
+
+<div class="row justify-content-center">
+  <div class="col-md-8 col-lg-6">
+    <div class="card shadow-lg">
+
+      <%# Encabezado: fase y número %>
+      <div class="card-header bg-dark text-white text-center py-3">
+        <span class="badge bg-secondary me-2"><%= @match.phase_label %></span>
+        Partido <%= @match.match_number %>
+        <% if @match.round.present? %>
+          &mdash; <%= @match.round %>
+        <% end %>
+        <% if @match.group %>
+          <span class="ms-2 badge bg-dark border border-secondary">Grupo <%= @match.group.name %></span>
+        <% end %>
+      </div>
+
+      <%# Cuerpo: equipos y marcador %>
+      <div class="card-body py-5">
+        <div class="row align-items-center text-center">
+
+          <%# Equipo local %>
+          <div class="col">
+            <h3 class="fw-bold mb-1
+                        <%= 'text-success' if @match.completed? && @match.winner == @match.home_team %>
+                        <%= 'text-muted' if @match.completed? && @match.winner && @match.winner != @match.home_team %>">
+              <%= @match.home_team&.name || "Por definir" %>
+            </h3>
+            <small class="text-muted">Local</small>
+          </div>
+
+          <%# Marcador central %>
+          <div class="col-auto px-4">
+            <% if @match.completed? %>
+              <div class="display-4 fw-bold">
+                <%= @match.home_goals %>
+                <span class="text-muted mx-2 fs-4">&ndash;</span>
+                <%= @match.away_goals %>
+              </div>
+              <% if @match.home_penalties %>
+                <p class="text-muted mt-1 mb-0 small">
+                  Penales: <%= @match.home_penalties %> &ndash; <%= @match.away_penalties %>
+                </p>
+              <% end %>
+              <% if @match.winner %>
+                <span class="badge bg-success mt-2">
+                  Ganador: <%= @match.winner.name %>
+                </span>
+              <% end %>
+            <% else %>
+              <span class="display-4 text-muted">VS</span>
+            <% end %>
+          </div>
+
+          <%# Equipo visitante %>
+          <div class="col">
+            <h3 class="fw-bold mb-1
+                        <%= 'text-success' if @match.completed? && @match.winner == @match.away_team %>
+                        <%= 'text-muted' if @match.completed? && @match.winner && @match.winner != @match.away_team %>">
+              <%= @match.away_team&.name || "Por definir" %>
+            </h3>
+            <small class="text-muted">Visitante</small>
+          </div>
+
+        </div>
+      </div>
+
+      <%# Pie: estado %>
+      <div class="card-footer text-center">
+        <% if @match.completed? %>
+          <span class="badge bg-success">✓ Partido finalizado</span>
+        <% else %>
+          <span class="badge bg-warning text-dark">⏳ Pendiente</span>
+        <% end %>
+      </div>
+
+    </div>
+  </div>
+</div>

@@ -1,0 +1,70 @@
+<%# ─────────────────────────────────────────────────────────────────────────
+    tournament/champion.html.erb
+    Podio final: campeón, subcampeón y tercer lugar (fase 9).
+    Variable disponible: @podium = { champion:, runner_up:, third_place: }
+──────────────────────────────────────────────────────────────────────────── %>
+
+<% if @podium[:champion].nil? %>
+  <%# Torneo aún no terminado %>
+  <div class="text-center my-5 py-5">
+    <p class="display-6 text-muted mb-4">⏳ El torneo aún no ha concluido.</p>
+    <p class="text-muted">Completa todos los partidos de eliminatoria para ver el campeón.</p>
+    <%= link_to "← Ver cuadro eliminatorio", tournament_bracket_path,
+          class: "btn btn-outline-primary btn-lg mt-3" %>
+  </div>
+
+<% else %>
+  <%# ── Título ──────────────────────────────────────────────────────────── %>
+  <div class="text-center mb-5">
+    <h1 class="display-5 fw-bold">🏆 Campeón del Mundial FIFA 2026</h1>
+    <p class="display-4 my-3">⭐&nbsp;<%= @podium[:champion].name %>&nbsp;⭐</p>
+    <p class="text-muted">¡Campeón del Mundo!</p>
+  </div>
+
+  <%# ── Podio (orden visual: plata | oro | bronce) ─────────────────────── %>
+  <div class="row justify-content-center align-items-end g-4 mb-5">
+
+    <%# Subcampeón — plata %>
+    <% if @podium[:runner_up] %>
+      <div class="col-sm-4 col-md-3 text-center">
+        <div class="card shadow">
+          <div class="card-header bg-secondary text-white fs-3 py-3">🥈</div>
+          <div class="card-body py-4">
+            <h4 class="fw-bold"><%= @podium[:runner_up].name %></h4>
+            <p class="text-muted mb-0">Subcampeón</p>
+          </div>
+        </div>
+      </div>
+    <% end %>
+
+    <%# Campeón — oro (más grande) %>
+    <div class="col-sm-4 col-md-4 text-center">
+      <div class="card shadow-lg podium-gold">
+        <div class="card-header bg-warning text-dark fs-2 py-3">🥇</div>
+        <div class="card-body py-4">
+          <h2 class="fw-bold"><%= @podium[:champion].name %></h2>
+          <p class="text-muted fs-5 mb-0">¡Campeón!</p>
+        </div>
+      </div>
+    </div>
+
+    <%# Tercer lugar — bronce %>
+    <% if @podium[:third_place] %>
+      <div class="col-sm-4 col-md-3 text-center">
+        <div class="card shadow">
+          <div class="card-header bg-warning bg-opacity-50 fs-3 py-3">🥉</div>
+          <div class="card-body py-4">
+            <h4 class="fw-bold"><%= @podium[:third_place].name %></h4>
+            <p class="text-muted mb-0">Tercer lugar</p>
+          </div>
+        </div>
+      </div>
+    <% end %>
+
+  </div>
+
+  <div class="text-center">
+    <%= link_to "← Ver cuadro eliminatorio", tournament_bracket_path,
+          class: "btn btn-outline-secondary btn-lg" %>
+  </div>
+<% end %>

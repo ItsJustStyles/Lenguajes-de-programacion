@@ -1,0 +1,75 @@
+<%# ─────────────────────────────────────────────────────────────────────────
+    teams/index.html.erb
+    Lista de todas las selecciones agrupadas por grupo.
+    Variable: @teams (incluye :group)
+──────────────────────────────────────────────────────────────────────────── %>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h1>Selecciones Participantes</h1>
+  <%= link_to "＋ Nueva selección", new_team_path, class: "btn btn-primary" %>
+</div>
+
+<% if @teams.empty? %>
+  <div class="alert alert-info">
+    No hay selecciones registradas. <%= link_to "Agregar la primera", new_team_path %>.
+  </div>
+
+<% else %>
+  <% @teams.group_by(&:group).each do |group, teams| %>
+    <h5 class="text-muted mb-2 mt-4 border-bottom pb-1">
+      <%= group ? "Grupo #{group.name}" : "Sin grupo asignado" %>
+    </h5>
+    <div class="table-responsive mb-2">
+      <table class="table table-hover align-middle">
+        <thead class="table-dark">
+          <tr>
+            <th style="width:2rem">#</th>
+            <th>Selección</th>
+            <th class="text-center" title="Partidos jugados">PJ</th>
+            <th class="text-center">G</th>
+            <th class="text-center">E</th>
+            <th class="text-center">P</th>
+            <th class="text-center" title="Diferencia de goles">DG</th>
+            <th class="text-center fw-bold">Pts</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% teams.each do |team| %>
+            <tr class="<%= 'table-success' if team.qualified? %><%= ' table-danger' if team.eliminated? %>">
+              <td class="text-muted"><%= team.group_position || "–" %></td>
+              <td class="fw-semibold">
+                <%= link_to team.name, team_path(team), class: "text-decoration-none" %>
+              </td>
+              <td class="text-center"><%= team.matches_played %></td>
+              <td class="text-center"><%= team.wins %></td>
+              <td class="text-center"><%= team.draws %></td>
+              <td class="text-center"><%= team.losses %></td>
+              <td class="text-center"><%= team.goal_difference %></td>
+              <td class="text-center fw-bold"><%= team.points %></td>
+              <td>
+                <% if team.qualified? %>
+                  <span class="badge bg-success">Clasificado</span>
+                <% elsif team.eliminated? %>
+                  <span class="badge bg-danger">Eliminado</span>
+                <% else %>
+                  <span class="badge bg-secondary">En competencia</span>
+                <% end %>
+              </td>
+              <td>
+                <div class="d-flex gap-1">
+                  <%= link_to "Ver", team_path(team), class: "btn btn-sm btn-outline-primary" %>
+                  <%= link_to "Editar", edit_team_path(team), class: "btn btn-sm btn-outline-warning" %>
+                  <%= button_to "✕", team_path(team), method: :delete,
+                        class: "btn btn-sm btn-outline-danger",
+                        data: { turbo_confirm: "¿Eliminar a #{team.name}?" } %>
+                </div>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% end %>
+<% end %>

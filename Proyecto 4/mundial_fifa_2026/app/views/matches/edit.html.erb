@@ -1,0 +1,109 @@
+<%# ─────────────────────────────────────────────────────────────────────────
+    matches/edit.html.erb
+    Formulario para registrar el resultado de un partido (fase 6).
+    En eliminatoria muestra campos de penales cuando hay empate (fase 8).
+    Variable: @match
+──────────────────────────────────────────────────────────────────────────── %>
+
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
+  <h1>Registrar Resultado</h1>
+  <%= link_to "Cancelar", matches_path, class: "btn btn-outline-secondary" %>
+</div>
+
+<div class="row justify-content-center">
+  <div class="col-md-7 col-lg-5">
+    <div class="card shadow">
+
+      <%# Encabezado %>
+      <div class="card-header bg-dark text-white text-center">
+        <span class="badge bg-secondary me-2"><%= @match.phase_label %></span>
+        Partido <%= @match.match_number %>
+        <% if @match.group %>
+          &bull; Grupo <%= @match.group.name %>
+        <% end %>
+      </div>
+
+      <div class="card-body">
+
+        <%# Nombre de los equipos %>
+        <div class="text-center mb-4">
+          <h4 class="mb-0">
+            <strong><%= @match.home_team&.name || "Por definir" %></strong>
+            <span class="text-muted mx-3">vs</span>
+            <strong><%= @match.away_team&.name || "Por definir" %></strong>
+          </h4>
+        </div>
+
+        <%= form_with(url: register_result_match_path(@match), method: :patch) do |form| %>
+
+          <%# ── Goles reglamentarios ─────────────────────────────────── %>
+          <div class="row g-3 mb-3">
+            <div class="col-6">
+              <%= form.label :home_goals,
+                    "Goles – #{@match.home_team&.name || 'Local'}",
+                    class: "form-label fw-semibold text-center d-block" %>
+              <%= form.number_field :home_goals,
+                    value: @match.home_goals,
+                    min: 0,
+                    class: "form-control result-input" %>
+            </div>
+            <div class="col-6">
+              <%= form.label :away_goals,
+                    "Goles – #{@match.away_team&.name || 'Visitante'}",
+                    class: "form-label fw-semibold text-center d-block" %>
+              <%= form.number_field :away_goals,
+                    value: @match.away_goals,
+                    min: 0,
+                    class: "form-control result-input" %>
+            </div>
+          </div>
+
+          <%# ── Penales (sólo en eliminatoria) ─────────────────────── %>
+          <% if @match.knockout? %>
+            <div class="alert alert-info small mb-3">
+              <strong>Fase eliminatoria:</strong> si el marcador termina en empate,
+              completa los campos de penales para definir el ganador.
+            </div>
+            <div class="row g-3 mb-3">
+              <div class="col-6">
+                <%= form.label :home_penalties,
+                      "Penales – #{@match.home_team&.name || 'Local'}",
+                      class: "form-label text-center d-block" %>
+                <%= form.number_field :home_penalties,
+                      value: @match.home_penalties,
+                      min: 0,
+                      placeholder: "—",
+                      class: "form-control text-center fs-5" %>
+              </div>
+              <div class="col-6">
+                <%= form.label :away_penalties,
+                      "Penales – #{@match.away_team&.name || 'Visitante'}",
+                      class: "form-label text-center d-block" %>
+                <%= form.number_field :away_penalties,
+                      value: @match.away_penalties,
+                      min: 0,
+                      placeholder: "—",
+                      class: "form-control text-center fs-5" %>
+              </div>
+            </div>
+          <% end %>
+
+          <%# ── Botón de envío ─────────────────────────────────────── %>
+          <div class="d-grid mt-4">
+            <%= form.submit "💾 Guardar resultado", class: "btn btn-success btn-lg" %>
+          </div>
+
+        <% end %>
+      </div>
+
+      <%# Nota informativa %>
+      <div class="card-footer text-muted small text-center">
+        Al guardar, la tabla del grupo se recalculará automáticamente.
+        <% if @match.knockout? %>
+          En eliminatoria, el ganador avanzará a la siguiente ronda.
+        <% end %>
+      </div>
+
+    </div>
+  </div>
+</div>

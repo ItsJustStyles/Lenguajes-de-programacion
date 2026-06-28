@@ -1,0 +1,149 @@
+<%# ─────────────────────────────────────────────────────────────────────────
+    tournament/standings.html.erb
+    Dashboard principal: tablas de posiciones de los 12 grupos + botones
+    de gestión del torneo (fases 5 y 6).
+    Variables disponibles: @groups, @status (TournamentStatusService)
+──────────────────────────────────────────────────────────────────────────── %>
+
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
+  <div>
+    <h1 class="mb-0">⚽ Fase de Grupos</h1>
+    <small class="text-muted">
+      <%# Muestra la fase actual del torneo %>
+      <% case @status.current_phase %>
+      <% when :not_started %> Estado: <span class="badge bg-secondary">No iniciado</span>
+      <% when :group_stage %> Estado: <span class="badge bg-primary">Fase de grupos en curso</span>
+      <% when :knockout    %> Estado: <span class="badge bg-success">Fase eliminatoria</span>
+      <% when :finished    %> Estado: <span class="badge bg-warning text-dark">¡Torneo finalizado!</span>
+      <% end %>
+    </small>
+  </div>
+
+  <%# ── Botones de acción según el estado del torneo ─────────────────── %>
+  <div class="d-flex flex-wrap gap-2">
+    <% unless @status.group_stage_started? %>
+      <%# Paso 1: generar los 72 partidos (requiere grupos y equipos cargados) %>
+      <%= button_to "⚙️ Generar partidos de grupos (72)",
+            tournament_generate_groups_path, method: :post,
+            class: "btn btn-primary",
+            data: { turbo_confirm: "¿Generar los 72 partidos de la fase de grupos?" } %>
+    <% end %>
+
+    <% if @status.ready_for_knockout? %>
+      <%# Paso 2: calcular clasificados y armar los dieciseisavos %>
+      <%= button_to "🏆 Generar cuadro eliminatorio",
+            tournament_generate_bracket_path, method: :post,
+            class: "btn btn-success",
+            data: { turbo_confirm: "¿Calcular los 32 clasificados y generar el cuadro de dieciseisavos?" } %>
+    <% end %>
+
+    <% if @status.knockout_started? %>
+      <%= link_to "Ver cuadro eliminatorio →", tournament_bracket_path, class: "btn btn-outline-success" %>
+    <% end %>
+
+    <% if @status.finished? %>
+      <%= link_to "🏆 Ver campeón", tournament_champion_path, class: "btn btn-warning" %>
+    <% end %>
+  </div>
+</div>
+
+<%# ── Sin grupos: instrucción al usuario ─────────────────────────────────── %>
+<% if @groups.empty? %>
+  <div class="alert alert-info">
+    No hay grupos configurados. <%= link_to "Crear grupos", new_group_path %> para comenzar.
+  </div>
+
+<% else %>
+  <%# ── Cuadrícula de 12 tarjetas (una por grupo) ───────────────────────── %>
+  <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
+    <% @groups.each do |group| %>
+      <div class="col">
+        <div class="card shadow-sm h-100">
+
+          <%# Encabezado de la tarjeta %>
+          <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Grupo <%= group.name %></h5>
+            <%= link_to "Detalle", group_path(group), class: "btn btn-sm btn-outline-light" %>
+          </div>
+
+          <%# ── Tabla de posiciones del grupo ───────────────────────────── %>
+          <div class="card-body p-0">
+            <table class="table table-sm table-hover standings-table mb-0">
+              <thead class="table-secondary">
+                <tr>
+                  <th>#</th>
+                  <th>Selección</th>
+                  <th class="text-center" title="Partidos jugados">PJ</th>
+                  <th class="text-center" title="Victorias">G</th>
+                  <th class="text-center" title="Empates">E</th>
+                  <th class="text-center" title="Derrotas">P</th>
+                  <th class="text-center" title="Diferencia de goles">DG</th>
+                  <th class="text-center fw-bold" title="Puntos">Pts</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% group.standings.each do |team| %>
+                  <tr class="<%= 'row-qualified' if team.qualified? %><%= ' row-eliminated' if team.eliminated? %>">
+                    <td class="text-muted"><%= team.group_position || "–" %></td>
+                    <td>
+                      <%= link_to team.name, team_path(team), class: "text-decoration-none fw-semibold" %>
+                      <% if team.qualified? %>
+                        <span class="badge bg-success ms-1" title="Clasificado">✓</span>
+                      <% elsif team.eliminated? %>
+                        <span class="badge bg-danger ms-1" title="Eliminado">✗</span>
+                      <% end %>
+                    </td>
+                    <td class="text-center"><%= team.matches_played %></td>
+                    <td class="text-center"><%= team.wins %></td>
+                    <td class="text-center"><%= team.draws %></td>
+                    <td class="text-center"><%= team.losses %></td>
+                    <td class="text-center"><%= team.goal_difference %></td>
+                    <td class="text-center fw-bold"><%= team.points %></td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+
+          <%# ── Partidos del grupo (mini lista) ─────────────────────────── %>
+          <% if @status.group_stage_started? %>
+            <% group_matches = group.matches.includes(:home_team, :away_team).ordered %>
+            <% if group_matches.any? %>
+              <div class="card-footer p-2 group-matches">
+                <% group_matches.each do |match| %>
+                  <div class="match-row d-flex justify-content-between align-items-center py-1
+                              <%= 'border-bottom' unless match == group_matches.last %>">
+                    <span class="text-truncate" style="max-width:38%">
+                      <%= match.home_team&.name || "TBD" %>
+                    </span>
+
+                    <% if match.completed? %>
+                      <strong class="px-1"><%= match.home_goals %>–<%= match.away_goals %></strong>
+                    <% else %>
+                      <%= link_to "Registrar",
+                            edit_match_path(match),
+                            class: "btn btn-primary btn-sm py-0 px-2" %>
+                    <% end %>
+
+                    <span class="text-truncate text-end" style="max-width:38%">
+                      <%= match.away_team&.name || "TBD" %>
+                    </span>
+                  </div>
+                <% end %>
+              </div>
+            <% end %>
+          <% end %>
+
+        </div>
+      </div>
+    <% end %>
+  </div>
+
+  <%# ── Leyenda de colores ────────────────────────────────────────────────── %>
+  <% if @status.knockout_started? || @status.ready_for_knockout? %>
+    <div class="mt-4 d-flex gap-3 small text-muted">
+      <span><span class="badge bg-success">✓</span> Clasificado</span>
+      <span><span class="badge bg-danger">✗</span> Eliminado</span>
+    </div>
+  <% end %>
+<% end %>

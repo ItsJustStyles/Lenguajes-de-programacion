@@ -1,0 +1,127 @@
+<%# ─────────────────────────────────────────────────────────────────────────
+    groups/show.html.erb
+    Detalle de un grupo: tabla de posiciones completa + lista de partidos.
+    Variable: @group
+──────────────────────────────────────────────────────────────────────────── %>
+
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
+  <h1>Grupo <%= @group.name %></h1>
+  <div class="d-flex gap-2">
+    <%= link_to "Editar", edit_group_path(@group), class: "btn btn-warning" %>
+    <%= link_to "← Grupos", groups_path, class: "btn btn-outline-secondary" %>
+  </div>
+</div>
+
+<div class="row g-4">
+
+  <%# ── Tabla de posiciones ───────────────────────────────────────────── %>
+  <div class="col-lg-8">
+    <div class="card shadow-sm">
+      <div class="card-header bg-dark text-white">
+        <h5 class="mb-0">Tabla de Posiciones</h5>
+      </div>
+      <div class="card-body p-0">
+        <table class="table table-striped table-hover standings-table mb-0">
+          <thead class="table-dark">
+            <tr>
+              <th>#</th>
+              <th>Selección</th>
+              <th class="text-center" title="Partidos jugados">PJ</th>
+              <th class="text-center" title="Victorias">G</th>
+              <th class="text-center" title="Empates">E</th>
+              <th class="text-center" title="Derrotas">P</th>
+              <th class="text-center" title="Goles a favor">GF</th>
+              <th class="text-center" title="Goles en contra">GC</th>
+              <th class="text-center" title="Diferencia de goles">DG</th>
+              <th class="text-center fw-bold" title="Puntos">Pts</th>
+              <th>Estado</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @group.standings.each do |team| %>
+              <tr class="<%= 'row-qualified' if team.qualified? %><%= ' row-eliminated' if team.eliminated? %>">
+                <td class="text-muted"><%= team.group_position || "–" %></td>
+                <td>
+                  <%= link_to team.name, team_path(team),
+                        class: "fw-bold text-decoration-none" %>
+                </td>
+                <td class="text-center"><%= team.matches_played %></td>
+                <td class="text-center"><%= team.wins %></td>
+                <td class="text-center"><%= team.draws %></td>
+                <td class="text-center"><%= team.losses %></td>
+                <td class="text-center"><%= team.goals_for %></td>
+                <td class="text-center"><%= team.goals_against %></td>
+                <td class="text-center"><%= team.goal_difference %></td>
+                <td class="text-center fw-bold"><%= team.points %></td>
+                <td>
+                  <% if team.qualified? %>
+                    <span class="badge bg-success">Clasificado</span>
+                  <% elsif team.eliminated? %>
+                    <span class="badge bg-danger">Eliminado</span>
+                  <% else %>
+                    <span class="badge bg-secondary">–</span>
+                  <% end %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+      <div class="card-footer small text-muted">
+        Criterios de desempate: puntos &rarr; diferencia de goles &rarr; goles a favor
+      </div>
+    </div>
+  </div>
+
+  <%# ── Lista de partidos del grupo ──────────────────────────────────── %>
+  <div class="col-lg-4">
+    <div class="card shadow-sm">
+      <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Partidos</h5>
+        <span class="badge bg-secondary">
+          <%= @group.matches.count(&:completed?) %> / <%= @group.matches.count %>
+        </span>
+      </div>
+
+      <% group_matches = @group.matches.includes(:home_team, :away_team).ordered %>
+      <% if group_matches.empty? %>
+        <div class="card-body text-muted fst-italic">
+          Los partidos se generan desde el Dashboard.
+        </div>
+      <% else %>
+        <div class="list-group list-group-flush">
+          <% group_matches.each do |match| %>
+            <div class="list-group-item">
+              <div class="d-flex justify-content-between align-items-center mb-1">
+                <small class="text-muted">Partido <%= match.match_number %></small>
+                <% if match.completed? %>
+                  <span class="badge bg-success">Finalizado</span>
+                <% else %>
+                  <%= link_to "Registrar", edit_match_path(match),
+                        class: "btn btn-sm btn-primary py-0" %>
+                <% end %>
+              </div>
+              <div class="d-flex justify-content-between fw-semibold">
+                <span class="text-truncate" style="max-width:40%">
+                  <%= match.home_team&.name || "TBD" %>
+                </span>
+                <span class="px-2">
+                  <% if match.completed? %>
+                    <%= match.home_goals %> &ndash; <%= match.away_goals %>
+                  <% else %>
+                    <span class="text-muted">vs</span>
+                  <% end %>
+                </span>
+                <span class="text-truncate text-end" style="max-width:40%">
+                  <%= match.away_team&.name || "TBD" %>
+                </span>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+
+    </div>
+  </div>
+
+</div>

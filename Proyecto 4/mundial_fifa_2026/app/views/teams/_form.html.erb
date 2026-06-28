@@ -1,0 +1,47 @@
+<%# ─────────────────────────────────────────────────────────────────────────
+    teams/_form.html.erb
+    Formulario compartido entre new y edit.
+    Variables locales: team, @groups
+──────────────────────────────────────────────────────────────────────────── %>
+
+<%= form_with(model: team) do |form| %>
+
+  <%# Errores de validación %>
+  <% if team.errors.any? %>
+    <div class="alert alert-danger">
+      <ul class="mb-0">
+        <% team.errors.full_messages.each do |msg| %>
+          <li><%= msg %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="mb-3">
+    <%= form.label :name, "País / Selección", class: "form-label fw-semibold" %>
+    <%= form.text_field :name,
+          placeholder: "Ej. Costa Rica",
+          class: "form-control #{'is-invalid' if team.errors[:name].any?}" %>
+    <% if team.errors[:name].any? %>
+      <div class="invalid-feedback"><%= team.errors[:name].first %></div>
+    <% end %>
+  </div>
+
+  <div class="mb-3">
+    <%= form.label :group_id, "Grupo", class: "form-label fw-semibold" %>
+    <%= form.collection_select :group_id,
+          @groups, :id, ->(g) { "Grupo #{g.name}" },
+          { prompt: "Seleccionar un grupo…" },
+          class: "form-select #{'is-invalid' if team.errors[:group_id].any?}" %>
+    <% if team.errors[:group_id].any? %>
+      <div class="invalid-feedback"><%= team.errors[:group_id].first %></div>
+    <% end %>
+    <div class="form-text">Cada grupo admite hasta 4 selecciones.</div>
+  </div>
+
+  <div class="d-flex gap-2 mt-4">
+    <%= form.submit class: "btn btn-primary" %>
+    <%= link_to "Cancelar", teams_path, class: "btn btn-outline-secondary" %>
+  </div>
+
+<% end %>

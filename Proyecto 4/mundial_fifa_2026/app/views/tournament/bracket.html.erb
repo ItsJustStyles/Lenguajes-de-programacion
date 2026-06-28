@@ -1,0 +1,135 @@
+<%# ─────────────────────────────────────────────────────────────────────────
+    tournament/bracket.html.erb
+    Cuadro de eliminación directa (fases 7 y 8).
+    Variable disponible: @matches_by_phase (Hash phase_string => [Match])
+──────────────────────────────────────────────────────────────────────────── %>
+
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
+  <h1 class="mb-0">Cuadro Eliminatorio</h1>
+  <div class="d-flex gap-2">
+    <%= link_to "← Dashboard", tournament_standings_path, class: "btn btn-outline-secondary" %>
+    <% if @matches_by_phase.values.flatten.all?(&:completed?) && @matches_by_phase.any? %>
+      <%= link_to "🏆 Ver campeón", tournament_champion_path, class: "btn btn-warning" %>
+    <% end %>
+  </div>
+</div>
+
+<% if @matches_by_phase.empty? %>
+  <div class="alert alert-info">
+    El cuadro eliminatorio aún no se ha generado.
+    Completa todos los partidos de la fase de grupos y luego usa el botón
+    <strong>"Generar cuadro eliminatorio"</strong> en el
+    <%= link_to "Dashboard", tournament_standings_path %>.
+  </div>
+
+<% else %>
+  <%
+    # Orden y etiquetas de las fases en español
+    PHASE_ORDER  = %w[round_of_32 round_of_16 quarter_final semi_final third_place final].freeze
+    PHASE_LABELS = {
+      "round_of_32"   => "Dieciseisavos de final",
+      "round_of_16"   => "Octavos de final",
+      "quarter_final" => "Cuartos de final",
+      "semi_final"    => "Semifinales",
+      "third_place"   => "Partido por el 3.er lugar",
+      "final"         => "⭐ Final"
+    }.freeze
+  %>
+
+  <% PHASE_ORDER.each do |phase| %>
+    <% matches = @matches_by_phase[phase] %>
+    <% next unless matches&.any? %>
+
+    <%# ── Encabezado de ronda ─────────────────────────────────────────── %>
+    <div class="round-header mb-3 mt-4">
+      <%= PHASE_LABELS[phase] || phase.humanize %>
+      <span class="float-end small fw-normal opacity-75">
+        <%= matches.count(&:completed?) %> / <%= matches.size %> finalizados
+      </span>
+    </div>
+
+    <%# ── Tarjetas de partidos ─────────────────────────────────────────── %>
+    <div class="row g-3 mb-2">
+      <% matches.each do |match| %>
+        <div class="col-sm-6 col-lg-4 col-xl-3">
+          <div class="card match-card shadow-sm
+                      <%= match.completed? ? 'border-success' : 'border-secondary' %>">
+
+            <%# Encabezado de la tarjeta %>
+            <div class="card-header py-1 px-3 small
+                        <%= match.completed? ? 'bg-success text-white' : 'bg-light text-muted' %>">
+              Partido&nbsp;<%= match.match_number %>
+              <% if match.round.present? %>
+                &mdash; <%= match.round %>
+              <% end %>
+            </div>
+
+            <%# Cuerpo: equipos y resultado %>
+            <div class="card-body py-2 px-3">
+              <div class="d-flex justify-content-between align-items-center gap-1">
+
+                <%# Equipo local %>
+                <div class="fw-semibold text-truncate
+                            <%= 'text-success' if match.completed? && match.winner == match.home_team %>
+                            <%= 'text-secondary' if match.completed? && match.winner && match.winner != match.home_team %>"
+                     style="max-width:38%">
+                  <%= match.home_team&.name || "Por definir" %>
+                </div>
+
+                <%# Marcador o "vs" %>
+                <% if match.completed? %>
+                  <div class="text-center flex-shrink-0">
+                    <span class="fs-5 fw-bold"><%= match.home_goals %></span>
+                    <span class="text-muted">&ndash;</span>
+                    <span class="fs-5 fw-bold"><%= match.away_goals %></span>
+                    <% if match.home_penalties %>
+                      <div class="small text-muted">
+                        (<%= match.home_penalties %>&ndash;<%= match.away_penalties %>&nbsp;pen.)
+                      </div>
+                    <% end %>
+                  </div>
+                <% else %>
+                  <div class="text-muted px-1 flex-shrink-0">vs</div>
+                <% end %>
+
+                <%# Equipo visitante %>
+                <div class="fw-semibold text-truncate text-end
+                            <%= 'text-success' if match.completed? && match.winner == match.away_team %>
+                            <%= 'text-secondary' if match.completed? && match.winner && match.winner != match.away_team %>"
+                     style="max-width:38%">
+                  <%= match.away_team&.name || "Por definir" %>
+                </div>
+
+              </div>
+            </div>
+
+            <%# Pie: botón registrar o ganador %>
+            <div class="card-footer py-1 px-3">
+              <% if match.completed? %>
+                <small class="text-success">
+                  ✓ Ganador: <strong><%= match.winner&.name || "—" %></strong>
+                </small>
+              <% elsif match.home_team && match.away_team %>
+                <%= link_to "Registrar resultado →",
+                      edit_match_path(match),
+                      class: "btn btn-primary btn-sm w-100" %>
+              <% else %>
+                <span class="text-muted small">Esperando clasificados…</span>
+              <% end %>
+            </div>
+
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+
+  <%# ── Enlace al podio si el torneo finalizó ──────────────────────────── %>
+  <% if @matches_by_phase["final"]&.all?(&:completed?) %>
+    <div class="text-center mt-5">
+      <%= link_to "🏆 Ver el podio del campeón", tournament_champion_path,
+            class: "btn btn-warning btn-lg" %>
+    </div>
+  <% end %>
+
+<% end %>

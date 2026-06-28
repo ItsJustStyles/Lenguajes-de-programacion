@@ -1,0 +1,28 @@
+# Ver https://help.github.com/articles/ignoring-files para más información.
+
+# Configuración local de bundler (rutas propias de cada máquina).
+/.bundle
+
+# Gemas instaladas localmente: cada quien las instala con `bundle install`.
+/vendor/bundle
+
+# Logs y archivos temporales.
+/log/*
+/tmp/*
+!/log/.keep
+!/tmp/.keep
+
+# Pidfiles, conservando la carpeta.
+/tmp/pids/*
+!/tmp/pids/.keep
+
+# Almacenamiento y bases de datos SQLite locales.
+/storage/*
+!/storage/.keep
+/tmp/storage/*
+!/tmp/storage/.keep
+*.sqlite3
+*.sqlite3-*
+
+# Llave maestra para descifrar credenciales.
+/config/master.key

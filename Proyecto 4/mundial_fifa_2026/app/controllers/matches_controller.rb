@@ -44,8 +44,14 @@ class MatchesController < ApplicationController
   end
 
   def result_params
-    params.require(:match).permit(:home_goals, :away_goals, :home_penalties, :away_penalties)
+  permitted_keys = [:home_goals, :away_goals, :home_penalties, :away_penalties]
+
+  if params[:match].present?
+    params.require(:match).permit(*permitted_keys)
+  else
+    params.permit(*permitted_keys)
   end
+end
 
   # Convierte a entero sólo si hay valor; si viene vacío devuelve nil.
   def presence_int(value)

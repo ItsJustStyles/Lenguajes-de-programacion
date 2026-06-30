@@ -27,6 +27,14 @@
           ) %>
     <% end %>
 
+    <%= button_to(
+      "⚡ Autocompletar torneo",
+      tournament_autocomplete_path,
+      method: :post,
+      class: "btn btn-danger",
+      data: { turbo_confirm: "Esto registrará automáticamente resultados hasta terminar el torneo. ¿Continuar?" }
+    ) %>
+
     <% if @status.ready_for_knockout? %>
       <%= button_to(
             "🏆 Generar cuadro eliminatorio",

@@ -21,6 +21,7 @@ Rails.application.routes.draw do
     get  "tournament/champion",         action: :champion,         as: :tournament_champion
     post "tournament/generate_groups",  action: :generate_groups,  as: :tournament_generate_groups
     post "tournament/generate_bracket", action: :generate_bracket, as: :tournament_generate_bracket
+    post "tournament/autocomplete", action: :autocomplete, as: :tournament_autocomplete
   end
 
   # Página principal: tablas de posiciones / panel del torneo.

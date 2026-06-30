@@ -51,6 +51,16 @@ class TournamentController < ApplicationController
     redirect_to tournament_standings_path, alert: e.message
   end
 
+  def autocomplete
+    result = TournamentAutoCompleter.new.call
+
+    redirect_to tournament_champion_path,
+                notice: "Torneo autocompletado: #{result[:total_completed]} partidos registrados automáticamente."
+  rescue StandardError => e
+    redirect_to tournament_standings_path,
+                alert: "No se pudo autocompletar el torneo: #{e.message}"
+  end
+
   private
 
   # Estado global del torneo, disponible para todas las acciones y vistas.

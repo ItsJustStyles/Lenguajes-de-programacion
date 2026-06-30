@@ -37,6 +37,8 @@ class TournamentController < ApplicationController
       count = GroupFixtureGenerator.new.call
       redirect_to tournament_standings_path, notice: "Se generaron #{count} partidos de la fase de grupos."
     end
+  rescue GroupFixtureGenerator::GroupIncompleteError => e
+    redirect_to tournament_standings_path, alert: e.message
   end
 
   # POST /tournament/generate_bracket — clasifica y arma los dieciseisavos.

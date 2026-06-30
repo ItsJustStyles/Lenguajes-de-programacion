@@ -31,9 +31,9 @@ class TournamentStatusService
     group_stage_complete? && !knockout_started?
   end
 
-  # ¿El torneo terminó? (final finalizada)
+  # ¿El torneo terminó? (final y partido por el tercer lugar finalizados)
   def finished?
-    Match.final.where(status: :completed).exists?
+    final_results.finished?
   end
 
   # Fase actual del torneo como símbolo, útil para el panel principal.
@@ -47,24 +47,27 @@ class TournamentStatusService
 
   # Campeón del Mundial (ganador de la final) o nil.
   def champion
-    final = Match.final.where(status: :completed).first
-    final&.winner
+    final_results.champion
   end
 
   # Subcampeón (perdedor de la final) o nil.
   def runner_up
-    final = Match.final.where(status: :completed).first
-    final&.loser
+    final_results.runner_up
   end
 
   # Tercer lugar (ganador del partido por el tercer lugar) o nil.
   def third_place
-    match = Match.third_place.where(status: :completed).first
-    match&.winner
+    final_results.third_place
   end
 
   # Devuelve el podio como hash, para mostrarlo cómodamente en la vista.
   def podium
-    { champion: champion, runner_up: runner_up, third_place: third_place }
+    final_results.call.slice(:champion, :runner_up, :third_place)
+  end
+
+  private
+
+  def final_results
+    @final_results ||= FinalResultsService.new
   end
 end

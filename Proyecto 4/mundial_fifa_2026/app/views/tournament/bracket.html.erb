@@ -24,9 +24,11 @@
 
 <% else %>
   <%
-    # Orden y etiquetas de las fases en español
-    PHASE_ORDER  = %w[round_of_32 round_of_16 quarter_final semi_final third_place final].freeze
-    PHASE_LABELS = {
+    # Orden y etiquetas de las fases en español.
+    # Se usan variables locales, no constantes, porque las vistas Rails se
+    # compilan como métodos y Ruby no permite asignar constantes dentro de métodos.
+    phase_order  = %w[round_of_32 round_of_16 quarter_final semi_final third_place final].freeze
+    phase_labels = {
       "round_of_32"   => "Dieciseisavos de final",
       "round_of_16"   => "Octavos de final",
       "quarter_final" => "Cuartos de final",
@@ -36,13 +38,13 @@
     }.freeze
   %>
 
-  <% PHASE_ORDER.each do |phase| %>
+  <% phase_order.each do |phase| %>
     <% matches = @matches_by_phase[phase] %>
     <% next unless matches&.any? %>
 
     <%# ── Encabezado de ronda ─────────────────────────────────────────── %>
     <div class="round-header mb-3 mt-4">
-      <%= PHASE_LABELS[phase] || phase.humanize %>
+      <%= phase_labels[phase] || phase.humanize %>
       <span class="float-end small fw-normal opacity-75">
         <%= matches.count(&:completed?) %> / <%= matches.size %> finalizados
       </span>

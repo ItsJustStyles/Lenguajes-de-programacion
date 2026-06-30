@@ -10,8 +10,12 @@ class Group < ApplicationRecord
 
   # Cantidad de equipos que conforman un grupo según el formato del torneo.
   TEAMS_PER_GROUP = 4
+  # El formato oficial del proyecto usa exactamente 12 grupos: A a L.
+  VALID_NAMES = ("A".."L").to_a.freeze
 
-  validates :name, presence: true, uniqueness: true
+  before_validation :normalize_name
+
+  validates :name, presence: true, uniqueness: true, inclusion: { in: VALID_NAMES }
 
   # Orden natural por nombre (A, B, C, ...).
   default_scope { order(:name) }
@@ -36,5 +40,11 @@ class Group < ApplicationRecord
 
   def to_s
     "Grupo #{name}"
+  end
+
+  private
+
+  def normalize_name
+    self.name = name.to_s.strip.upcase if name.present?
   end
 end

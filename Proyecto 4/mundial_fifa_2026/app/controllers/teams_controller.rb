@@ -9,7 +9,7 @@ class TeamsController < ApplicationController
 
   # GET /teams — todas las selecciones, agrupadas por grupo en la vista.
   def index
-    @teams = Team.includes(:group).order("groups.name", :name)
+    @teams = Team.joins(:group).includes(:group).order("groups.name ASC", "teams.name ASC")
   end
 
   # GET /teams/:id

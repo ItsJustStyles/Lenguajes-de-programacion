@@ -15,6 +15,7 @@ class Team < ApplicationRecord
   has_many :away_matches, class_name: "Match", foreign_key: :away_team_id, dependent: :nullify
 
   validates :name, presence: true, uniqueness: true
+  validate :group_has_capacity
 
   # Scopes útiles para consultar selecciones según su estado en el torneo.
   scope :qualified, -> { where(qualified: true) }
@@ -36,5 +37,17 @@ class Team < ApplicationRecord
 
   def to_s
     name
+  end
+
+  private
+
+  # Evita que se registren más de 4 selecciones en un mismo grupo.
+  def group_has_capacity
+    return unless group
+
+    current_count = group.teams.where.not(id: id).count
+    if current_count >= Group::TEAMS_PER_GROUP
+      errors.add(:group_id, "ya tiene #{Group::TEAMS_PER_GROUP} selecciones")
+    end
   end
 end

@@ -70,8 +70,9 @@ Luego abrir en el navegador: **http://localhost:3000**
 2. **Generar fase de grupos**: crea los 72 partidos (6 por grupo).
 3. **Registrar resultados** de cada partido: la tabla de posiciones se recalcula
    automáticamente (puntos → diferencia de goles → goles a favor).
-4. Al completarse todos los grupos, **generar la fase eliminatoria**: clasifican
-   1.º y 2.º de cada grupo más los 8 mejores terceros (32 equipos).
+4. Al completarse todos los grupos, el sistema **genera automáticamente la fase eliminatoria**:
+   clasifican 1.º y 2.º de cada grupo más los 8 mejores terceros (32 equipos).
+   El botón del dashboard queda como respaldo idempotente si se desea forzar el cálculo.
 5. **Registrar resultados** de la eliminatoria (incluye penales en caso de empate).
    El ganador avanza automáticamente a la siguiente ronda.
 6. Ver el **campeón, subcampeón y tercer lugar** del Mundial.
@@ -86,9 +87,11 @@ Luego abrir en el navegador: **http://localhost:3000**
   - `GroupFixtureGenerator` — genera los partidos de la fase de grupos
   - `StandingsCalculator` — calcula la tabla de posiciones de un grupo
   - `QualificationService` — determina los 32 clasificados
+  - `AutoBracketService` — genera automáticamente dieciseisavos al terminar grupos
   - `BracketGenerator` — arma el cuadro de dieciseisavos
   - `KnockoutAdvancer` — hace avanzar la eliminatoria automáticamente
   - `MatchResultProcessor` — registra un resultado y dispara los efectos
+  - `FinalResultsService` — determina campeón, subcampeón y tercer lugar
   - `TournamentStatusService` — consulta el estado global del torneo
 - **Controladores** (`app/controllers`): `GroupsController`, `TeamsController`,
   `MatchesController`, `TournamentController`.

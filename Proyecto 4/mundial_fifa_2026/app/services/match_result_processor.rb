@@ -65,7 +65,13 @@ class MatchResultProcessor
   def propagate_effects
     if match.group_stage?
       StandingsCalculator.new(match.group).call
+      # Si este resultado completó la fase de grupos, se calculan los 32
+      # clasificados y se genera automáticamente el cuadro de dieciseisavos.
+      AutoBracketService.new.call
     else
+      # En eliminatoria, cuando una ronda queda completa, se crean los cruces
+      # de la siguiente ronda y, desde semifinales, también el partido por el
+      # tercer lugar y la final.
       KnockoutAdvancer.new.call
     end
   end
